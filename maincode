@@ -1,0 +1,73 @@
+"""Sample Webots controller for the pit escape benchmark."""
+
+from controller import Robot
+
+robot = Robot()
+
+timestep = int(robot.getBasicTimeStep())
+
+# Max possible speed for the motor of the robot.
+maxSpeed = 8.72
+# Configuration of the main motor of the robot.
+pitchMotor = robot.getMotor("body pitch motor")
+pitchMotor.setPosition(float('inf'))
+pitchMotor.setVelocity(-5.455) #velocity altered for better performance
+
+#Setting up head gyro sensor
+hg = robot.getGyro("head gyro")
+hg.enable(timestep)
+
+#Setting up body gyro sensor
+gyro = robot.getGyro("body gyro")
+gyro.enable(timestep) 
+
+#This function returns the current measurement of the Gyro device. 
+#Each vector element represents the angular velocity 
+#about one of the axes of the Gyro node, expressed in 
+#radians per second [rad/s]. The first element corresponds to 
+#the angular velocity about the x-axis, the second element to the
+#y-axis, etc.
+
+# This is the time interval between direction switches.
+# The robot will start by going forward and will go backward after
+# this time interval, and so on.
+timeInterval = 1
+
+# At first we go forward.
+forward = True
+lastTime = 0
+
+#Creating a variable for the values 
+maxvalue = [-10,-10,-10]  #creating a list for maxvalue; this will
+#be updated with higher values during the simulation. 
+maxhg = [-10,-10,-10]
+
+while robot.step(timestep) != -1:
+    now = robot.getTime()
+    # We check if enough time has elapsed.
+    if now - lastTime > timeInterval:
+        # If yes, then we switch directions.
+        values = gyro.getValues()
+        headvalues = hg.getValues()
+        if forward:
+            #For each step we'll check the values;
+            #if the current value exceeds the maxvalue (and thus peak velocity).
+            #BB-8 starts moving!!
+            if values > maxvalue or headvalues > maxhg:
+                pitchMotor.setVelocity(-maxSpeed)
+                maxvalue = values
+                maxhg = headvalues
+                print('Max value:', maxvalue)
+                print('Max head value:', maxhg)
+        else:
+            if values > maxvalue or headvalues > maxhg:
+                pitchMotor.setVelocity(maxSpeed)
+                maxvalue = values
+                maxhg = headvalues
+                print('Max value:', maxvalue)
+                print('Max head value:',maxhg)
+        forward = not forward
+        lastTime = now
+
+
+
