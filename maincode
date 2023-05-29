@@ -21,13 +21,6 @@ hg.enable(timestep)
 gyro = robot.getGyro("body gyro")
 gyro.enable(timestep) 
 
-#This function returns the current measurement of the Gyro device. 
-#Each vector element represents the angular velocity 
-#about one of the axes of the Gyro node, expressed in 
-#radians per second [rad/s]. The first element corresponds to 
-#the angular velocity about the x-axis, the second element to the
-#y-axis, etc.
-
 # This is the time interval between direction switches.
 # The robot will start by going forward and will go backward after
 # this time interval, and so on.
@@ -37,9 +30,8 @@ timeInterval = 1
 forward = True
 lastTime = 0
 
-#Creating a variable for the values 
-maxvalue = [-10,-10,-10]  #creating a list for maxvalue; this will
-#be updated with higher values during the simulation. 
+#Creating lists to store the highest values
+maxvalue = [-10,-10,-10]  
 maxhg = [-10,-10,-10]
 
 while robot.step(timestep) != -1:
@@ -68,6 +60,8 @@ while robot.step(timestep) != -1:
                 print('Max head value:',maxhg)
         forward = not forward
         lastTime = now
+        print('Body Value:', values)
+        print('Head value:', headvalues)
 
 
 
